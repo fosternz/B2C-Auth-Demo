@@ -1,10 +1,11 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import {
   MsalBroadcastService,
   MsalGuard,
   MsalGuardConfiguration,
+  MsalInterceptor,
   MsalModule,
   MsalRedirectComponent,
   MsalService,
@@ -23,23 +24,23 @@ import { msalConfig, protectedResources } from './auth-config';
 import { HomeComponent } from './home/home.component';
 import { SecureComponent } from './secure/secure.component';
 
-/**
- * Here we pass the configuration parameters to create an MSAL instance.
- * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
- */
-export function MSALInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication(msalConfig);
-}
+// /**
+//  * Here we pass the configuration parameters to create an MSAL instance.
+//  * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
+//  */
+// export function MSALInstanceFactory(): IPublicClientApplication {
+//   return new PublicClientApplication(msalConfig);
+// }
 
-/**
- * Set your default interaction type for MSALGuard here. If you have any
- * additional scopes you want the user to consent upon login, add them here as well.
- */
-export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return {
-    interactionType: InteractionType.Redirect,
-  };
-}
+// /**
+//  * Set your default interaction type for MSALGuard here. If you have any
+//  * additional scopes you want the user to consent upon login, add them here as well.
+//  */
+// export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+//   return {
+//     interactionType: InteractionType.Redirect,
+//   };
+// }
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, SecureComponent],
@@ -72,12 +73,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   ],
   providers: [
     {
-      provide: MSAL_INSTANCE,
-      useFactory: MSALInstanceFactory,
-    },
-    {
-      provide: MSAL_GUARD_CONFIG,
-      useFactory: MSALGuardConfigFactory,
+      provide: HTTP_INTERCEPTORS,
+      useFactory: MsalInterceptor,
+      multi: true,
     },
     MsalService,
     MsalGuard,
